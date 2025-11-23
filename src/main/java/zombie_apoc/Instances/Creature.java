@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public abstract class Creature {
 	// Important attributes
-	protected World world;
+	
 	public int x;
 	public int y;
 	
@@ -25,7 +25,7 @@ public abstract class Creature {
 	protected abstract void update_neighbors();
 
 	// Battling, moving, and dying
-    public abstract void battle(Creature enemy);
+        public abstract void battle(Creature enemy);
 
 	public abstract void move();
 	public abstract void die();

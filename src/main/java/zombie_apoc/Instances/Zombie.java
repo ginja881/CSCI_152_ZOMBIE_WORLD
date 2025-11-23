@@ -41,8 +41,7 @@ public class Zombie extends Creature {
 	}
 
 
-	public Zombie(World world, int x, int y, double move_rate, double infect_rate) {
-		this.world = world;
+	public Zombie(int x, int y, double move_rate, double infect_rate) {
 		this.x = x;
 		this.y = y;
 		this.move_rate = move_rate;

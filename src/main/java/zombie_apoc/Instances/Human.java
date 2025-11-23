@@ -40,8 +40,7 @@ public class Human extends Creature {
 		return this;
 	}
 	// Constructor
-	public Human(World world, int x, int y, double move_rate, double reproduce_rate) {
-		this.world = world;
+	public Human(int x, int y, double move_rate, double reproduce_rate) {
 		this.x = x;
 		this.y = y;
 		this.move_rate = move_rate;

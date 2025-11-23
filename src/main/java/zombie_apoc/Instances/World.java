@@ -13,7 +13,7 @@ import Instances.Zombie;
 
 
 public class World {
-     public Creature[][] zone;
+     private Creature[][] zone;
      
      public Random random;
      
@@ -52,6 +52,9 @@ public class World {
      public void removeCreature(Creature creature) {
 	     // TODO: Implement method that would be called within creature classes for removal
 		 return;
+     }
+     public Creature getCreature(int x, int y) {
+	     return this.zone[y][x];
      }
      public World(
 		     double visitor_rate,

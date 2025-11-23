@@ -1,16 +1,24 @@
 package zombie_apoc;
-import org.ini4j.Ini;
+
+// Necessary custom instances defined in Instances directory
 import Instances.Human;
 import Instances.World;
 import Instances.Zombie;
 
-
+// Helpers
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.Random;
-import java.io.InputStream;
 
-class Main {
+import java.io.IOException;
+import java.io.File;
+import java.utill.concurrent.TimeUnit;
+
+class App {
+	private static String configFile = "../resource/config.ini";
+
+	private int running_days = 0;
+        private static Wini ini = null;
+	private static World world = null;
 	// Given how different zombie and human are, I decided to divide their rolling into separate functions
 	public static void handleZombie(Zombie zombie) {
 		//TODO: As said above, implement method around zombie class for probabalistic handling
@@ -18,32 +26,40 @@ class Main {
 	public static void handleHuman(Human human) {
 		//TODO: Just like handleZombie, implement method around human class for probabilistic handling
 	}
+        
+	public static void initialize() {
+		try {
+		    ini = new Wini(new File(configFile));
+		    
+		        
+                }
+		catch (IOException e) {
+			System.err.println("Something went wrong in parsing config! Using default values");
 
+		}
+	}
 	public static void main (String[] args) {
-        World world =  new World(
-			    5.0,
-			    10,
-			    60.0,
-			    30.0,
-			    70.0,
-			    70.0,
-			    40.0
-	    );
-        int days = Integer.parseInt(args[0]);    
-        if (days == 0)
-		    return;
-	    while (days >= 1) {
-		    for (int i =0; i < world.zone.length; i++) {
-			    for (int j =0; j < world.zone[i].length; j++) {
-				    if (world.zone[i][j] == null)
-                        continue;
-				    if (world.zone[i][j] instanceof Human)
-					  handleHuman((Human)world.zone[i][j]);
-				    else if (world.zone[i][j] instanceof Zombie)
-					  handleZombie((Zombie)world.zone[i][j]);
-			    } 
+            initialize();
+	    while (running_days > 0) {
+		 System.out.print("\033[H\033[2J");
+		 System.out.flush();
+
+		 world.printWorld();
+	         for (int i = 0; i < world.height; i++) {
+		    for (int j = 0; j < world.width; j++) {
+			    Creature currentCreature = world.getCreature(j, i);
+			    if (currentCreature == null)
+				    continue;
+			    else if (currentCreature instanceof Human)
+				    handleHuman(currentCreature);
+			    else if (currentCreature instanceof Zombie)
+				    handleZombie(currentCreature);
 		    }
-		    days--;
+	        }
+                
+	        try {TimeUnit.SECONDS.sleep(1);}
+		catch (InterruptedException e) {e.printStackTrace();}
+
 	    }
 	}
 }
