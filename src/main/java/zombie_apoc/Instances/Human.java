@@ -13,11 +13,13 @@ import Instances.Zombie;
 
 import java.util.ArrayList;
 import java.util.Random;
+import org.ini4j.Ini; 
+
 
 public class Human extends Creature {
     // Reproduction rate
-	public double reproduce_rate;
-    
+	private double reproduce_rate;
+        private double weapon_rate_offset;
 	// Neighbors
 	public ArrayList<int[]> get_neighbors() { return this.neighbors;};
 	protected void update_neighbors() {
@@ -40,11 +42,13 @@ public class Human extends Creature {
 		return this;
 	}
 	// Constructor
-	public Human(int x, int y, double move_rate, double reproduce_rate) {
+	public Human(Ini.Section human_info, int x, int y) {
 		this.x = x;
 		this.y = y;
-		this.move_rate = move_rate;
-		this.reproduce_rate = reproduce_rate;
+		this.move_rate = Double.parseDouble(human_info.get("human_move_rate"));
+		this.reproduce_rate = Double.parseDouble(human_info.get("human_reproduce_rate"));
+		this.battle_rate = Double.parseDouble(human_info.get("human_battle_rate"));
+		this.weapon_rate_offset = Double.parseDouble(human_info.get("human_weapon_rate_offset"));
 		this.neighbors = new ArrayList<int[]>();
 		update_neighbors();
 	}

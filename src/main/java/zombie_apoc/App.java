@@ -44,18 +44,24 @@ class App {
 		 System.out.print("\033[H\033[2J");
 		 System.out.flush();
 
-		 world.printWorld();
-	         for (int i = 0; i < world.height; i++) {
-		    for (int j = 0; j < world.width; j++) {
-			    Creature currentCreature = world.getCreature(j, i);
-			    if (currentCreature == null)
-				    continue;
-			    else if (currentCreature instanceof Human)
-				    handleHuman(currentCreature);
-			    else if (currentCreature instanceof Zombie)
-				    handleZombie(currentCreature);
-		    }
-	        }
+		world.printWorld();
+	         
+		int current_zombie = 0;
+                int current_human = 0;
+
+		int zombie_count = world.zombies.size();
+		int human_count = world.humans.size();
+	        while (true) {
+			if (current_human < human_count)
+                            handleHuman(world.humans.get(current_human));
+		        if (current_zombie < zombie_count)
+			    handleZombie(world.humans.get(current_zombie));
+                                                                     
+			if (current_zombie == zombie_count && current_human = human_count)
+				break;
+			current_zombie = (current_zombie < zombie_count ? current_zombie + 1 : current_zombie);
+			current_human = (current_human < human_count ? current_human + 1 : current_human); 
+		}
                 
 	        try {TimeUnit.SECONDS.sleep(1);}
 		catch (InterruptedException e) {e.printStackTrace();}
