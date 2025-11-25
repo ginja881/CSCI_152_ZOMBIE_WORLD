@@ -20,6 +20,7 @@ public class Human extends Creature {
     // Reproduction rate
 	private double reproduce_rate;
         private double weapon_rate_offset;
+	private Ini.Section human_info; // added by gabe
 	// Neighbors
 	public ArrayList<int[]> get_neighbors() { return this.neighbors;};
 	protected void update_neighbors() {
@@ -37,14 +38,24 @@ public class Human extends Creature {
 		
 	}
 
-	public Human reproduce(Human partner) {
-		// TODO: Implement probability of reproduction
-		return this;
+	public Human reproduce(Human partner) { // added by gabe
+		Random rng = new Random();
+    double chance = (this.reproduce_rate + partner.reproduce_rate) / 2.0;
+
+    if (rng.nextDouble() <= chance) {
+        int childX = this.x;
+        int childY = this.y;
+        Human child = new Human(this.human_info, childX, childY);
+        return child;
+    }
+
+    return null;
 	}
 	// Constructor
 	public Human(Ini.Section human_info, int x, int y) {
 		this.x = x;
 		this.y = y;
+		this.human_info = human_info; // added by gabe
 		this.move_rate = Double.parseDouble(human_info.get("human_move_rate"));
 		this.reproduce_rate = Double.parseDouble(human_info.get("human_reproduce_rate"));
 		this.battle_rate = Double.parseDouble(human_info.get("human_battle_rate"));
