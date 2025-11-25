@@ -11,22 +11,24 @@ import java.util.ArrayList;
 public abstract class Creature {
 	// Important attributes
 	
-	public int x;
-	public int y;
+	protected int x;
+	protected int y;
 	
 	protected ArrayList<int[]> neighbors;
     // Rates for moving, death, and battling
 	public double move_rate;
 	public double death_rate;
-        public double battle_rate;
+    public double battle_rate;
 	
 	// Neighbors
 	public abstract ArrayList<int[]> get_neighbors();
 	protected abstract void update_neighbors();
-
 	// Battling, moving, and dying
-        public abstract void battle(Creature enemy);
+    public abstract void battle(Creature enemy);
 
 	public abstract void move();
 	public abstract void die();
+
+	public abstract int get_x();
+	public abstract int get_y();
 }

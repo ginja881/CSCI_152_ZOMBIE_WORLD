@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import Instances.Creature;
 
 import java.util.Random;
+import org.ini4j.Ini;
 
 public class Zombie extends Creature {
     public int death_ticker;
@@ -28,7 +29,7 @@ public class Zombie extends Creature {
 		//TODO: Implement updating algorithm (One used in Human)
 	}
 
-        public void move() {
+    public void move() {
 		// TODO: Implement probabilisitc moving
 	}
 	
@@ -39,14 +40,21 @@ public class Zombie extends Creature {
 		// TODO: Implement fighting mechanic for when zombies are neighbored to humans, based off of rates
 		
 	}
+    public void update_ticker() {this.death_ticker--;};
+    public int get_x() {return this.x;}
+	public int get_y() {return this.y;}
 
 
-	public Zombie(int x, int y, Ini.Section home ) {
+	public Zombie(int x, int y, Ini.Section zombie_info) {
 		this.x = x;
 		this.y = y;
-		this.move_rate = move_rate;
-		this.infect_rate = infect_rate;
-		this.death_ticker = 4;
+
+		this.move_rate = Double.parseDouble(zombie_info.get("zombie_move_rate"));
+		this.infect_rate = Double.parseDouble(zombie_info.get("zombie_infect_rate"));
+		this.battle_rate = Double.parseDouble(zombie_info.get("zombie_battle_rate"));
+
+		this.death_ticker = Integer.parseInt(zombie_info.get("zombie_death_ticker"));
+		
 		this.neighbors = new ArrayList<int[]>();
 		update_neighbors();
 	}

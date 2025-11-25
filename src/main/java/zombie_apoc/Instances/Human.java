@@ -19,8 +19,8 @@ import org.ini4j.Ini;
 public class Human extends Creature {
     // Reproduction rate
 	private double reproduce_rate;
-        private double weapon_rate_offset;
-	private Ini.Section human_info; // added by gabe
+    private double weapon_rate_offset;
+    private Ini.Section human_info;
 	// Neighbors
 	public ArrayList<int[]> get_neighbors() { return this.neighbors;};
 	protected void update_neighbors() {
@@ -29,28 +29,22 @@ public class Human extends Creature {
 	public void move() {
 		// TODO: Implement probabilistic moving
 	}
-	public void die() {
-		// TODO: Wrapper for World.removeCreature()
-	}
 
 	public void battle(Creature enemy) {
-		// TODO: Implement fighting mechanic for when humans are neighbored to a zombie, based off of battle_rate
-		
+		// TODO: Implement fighting mechanic for when humans are neighbored to a zombie, based off of battle_rate		
 	}
 
-	public Human reproduce(Human partner) { // added by gabe
+	public boolean reproduce(Human partner) { // added by gabe
 		Random rng = new Random();
-    double chance = (this.reproduce_rate + partner.reproduce_rate) / 2.0;
+        double chance = (this.reproduce_rate + partner.reproduce_rate) / 2.0;
 
-    if (rng.nextDouble() <= chance) {
-        int childX = this.x;
-        int childY = this.y;
-        Human child = new Human(this.human_info, childX, childY);
-        return child;
-    }
-
-    return null;
+        if (rng.nextDouble() <= chance)
+            return true;
+        return false;
 	}
+
+	public int get_x() {return this.x;}
+	public int get_y() {return this.y;}
 	// Constructor
 	public Human(Ini.Section human_info, int x, int y) {
 		this.x = x;
