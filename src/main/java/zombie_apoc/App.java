@@ -1,22 +1,22 @@
 package zombie_apoc;
 
 // Necessary custom instances defined in Instances directory
-import Instances.Human;
-import Instances.World;
-import Instances.Zombie;
+import zombie_apoc.Instances.Human;
+import zombie_apoc.Instances.World;
+import zombie_apoc.Instances.Zombie;
 
 // Helpers
 import java.util.ArrayList;
 import java.util.Random;
 
 import java.io.IOException;
-import java.io.File;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.ini4j.Wini;
 
 class App {
-	private static String configFile = "../resource/config.ini";
+	private static String configFile = "config.ini";
 
 	private static int running_days = 0;
     private static Wini ini = null;
@@ -34,9 +34,14 @@ class App {
         
 	public static void initialize() {
 		try {
-		    ini = new Wini(new File(configFile));
-		    world = new World(ini.get("world"), ini.get("human"), ini.get("zombie"));
-			running_days = Integer.parseInt(ini.get("main", "running_days"));
+            InputStream input = App.class.getClassLoader().getResourceAsStream(configFile);
+			if (input == null) {
+				System.out.println("Config file not found");
+				System.exit(-1);
+			}
+		    ini = new Wini(input);
+		    world = new World(ini.get("World"), ini.get("Human"), ini.get("Zombie"));
+			running_days = Integer.parseInt(ini.get("Main", "running_days"));
         }
 		catch (IOException e) {
 			System.err.println("Something went wrong in parsing config! Using default values");
@@ -60,14 +65,15 @@ class App {
 			    if (current_human < human_count)
                     handleHuman(world.humans.get(current_human));
 		        if (current_zombie < zombie_count)
-			         handleZombie(world.humans.get(current_zombie));
+			        handleZombie(world.zombies.get(current_zombie));
                                                                      
-			     if (current_zombie == zombie_count && current_human = human_count)
+			     if (current_zombie == zombie_count && current_human == human_count)
 				     break;
 			     current_zombie = (current_zombie < zombie_count ? current_zombie + 1 : current_zombie);
 			     current_human = (current_human < human_count ? current_human + 1 : current_human); 
 		    }
-                
+            running_days--;
+			
 	        try {TimeUnit.SECONDS.sleep(1);}
 		    catch (InterruptedException e) {e.printStackTrace();}
 

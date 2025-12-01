@@ -37,6 +37,19 @@
 				  <target>21</target>
 			  </configuration>
 		  </plugin>
+      <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.6.2</version>
+            <configuration>
+                <mainClass>zombie_apoc.App</mainClass>
+            </configuration>
+        </plugin>
 	  </plugins>
+    <resources>
+        <resource>
+             <directory>src/main/java/resources</directory>
+        </resource>
+    </resources>
   </build>
 </project>

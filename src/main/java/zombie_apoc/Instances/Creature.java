@@ -4,8 +4,8 @@
  * Description: creature class representation, for abstraction
  */
 
-package Instances;
-import Instances.World;
+package zombie_apoc.Instances;
+import zombie_apoc.Instances.World;
 import java.util.ArrayList;
 
 public abstract class Creature {
@@ -27,8 +27,9 @@ public abstract class Creature {
     public abstract void battle(Creature enemy);
 
 	public abstract void move();
-	public abstract void die();
 
 	public abstract int get_x();
 	public abstract int get_y();
+
+	
 }
