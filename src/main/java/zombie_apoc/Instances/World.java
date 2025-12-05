@@ -29,7 +29,7 @@ public class World {
      private int current_creatures;
      private double human_spawn_rate;
      private double zombie_spawn_rate;
-     private double visitor_spawn_rate;
+     private double visitor_rate;
      private double norm_constant;
 
      private double super_creature_spawn_rate;
@@ -40,39 +40,41 @@ public class World {
 
      private void generateWorld() {
         int max_initial_creatures = (int)Math.sqrt(this.world_width * this.world_height);
-	int current_initial_creatures = 0;
+	    int current_initial_creatures = 0;
         while (current_initial_creatures < max_initial_creatures) {
-	         int x = this.random.nextInt(10);
-		 int y = this.random.nextInt(10);
+	        int x = this.random.nextInt(this.world_width);
+		    int y = this.random.nextInt(this.world_height);
 
-		 if (zone[y][x] != null)
-			 continue;
-                 double chance = this.random.nextDouble() * this.norm_constant;
-		 boolean is_super = (this.random.nextDouble() * this.norm_constant) <= this.super_creature_spawn_rate ? true : false;
-		 if (chance <= this.zombie_spawn_rate) 
-			 creature_factory.spawnZombie(x, y, is_super);
-		 else if (chance <= this.human_spawn_rate)
-			 creature_factory.spawnHuman(x, y, is_super);
-		 current_initial_creatures++;
+		    if (zone[y][x] != null)
+			    continue;
+		    boolean is_super = (this.random.nextDouble() * this.norm_constant) <= this.super_creature_spawn_rate ? true : false;
+		    if (this.random.nextDouble() * this.norm_constant <= this.zombie_spawn_rate) {
+			    creature_factory.spawnZombie(x, y, is_super);
+				current_initial_creatures++;
+			}
+		    if (this.random.nextDouble() * this.norm_constant <= this.human_spawn_rate) {
+			    creature_factory.spawnHuman(x, y, is_super);
+		        current_initial_creatures++;
+			}
 		 
 
-	} 
+	    } 
      }
      public void introduceVisitor() {
 	     // TODO: Implement method meant for spawning zombies or humans based off of visitor rates
 
 	    if (current_creatures == max_creatures)
 		    return;	
-            if (this.random.nextDouble() * (this.norm_constant) <= this.visitor_spawn_rate)
+        if (this.random.nextDouble() * (this.norm_constant) > this.visitor_rate)
 		    return;
 
-	    int bounds[] = {0, world_width};
-
+	    int bounds_x[] = {0, world_width};
+        int bounds_y[] = {0, world_height};
 	    
 	    double chance = this.random.nextDouble() * (this.norm_constant);
-            boolean isSuper = (this.random.nextDouble() * (this.norm_constant) <= this.super_creature_spawn_rate ? true : false);
-	    int bound_x = this.random.nextInt(2);
-	    int bound_y = this.random.nextInt(2);
+        boolean isSuper = (this.random.nextDouble() * (this.norm_constant) <= this.super_creature_spawn_rate ? true : false);
+	    int bound_x = bounds_x[this.random.nextInt(2)];
+	    int bound_y = bounds_y[this.random.nextInt(2)];
 	    if (zone[bound_y][bound_x] != null) {
 		    return;
 	    }
@@ -80,7 +82,7 @@ public class World {
 		    if (chance <= this.human_spawn_rate) 
 			    creature_factory.spawnHuman(bound_x, bound_y, isSuper);
 		    else if (chance <= this.zombie_spawn_rate)
-                            creature_factory.spawnZombie(bound_x, bound_y, isSuper);
+                creature_factory.spawnZombie(bound_x, bound_y, isSuper);
 	    }
 
      }
@@ -88,29 +90,29 @@ public class World {
     class CreatureManager {
 	        public void spawnHuman(int x, int y, boolean isSuper) {
 	            if (zone[y][x] != null)
-				return;		
+				     return;		
 	
-		    Human human = new Human(human_settings, x, y, isSuper);
-		    zone[y][x] = human;
-                    current_creatures++;
-		   humans.add(human);
-	         }
-	         public void spawnZombie(int x, int y, boolean isSuper) {
-			 if (zone[y][x] != null)
-				return;		
+		        Human human = new Human(human_settings, x, y, isSuper);
+		        zone[y][x] = human;
+                current_creatures++;
+		        humans.add(human);
+	        }
+	        public void spawnZombie(int x, int y, boolean isSuper) {
+			    if (zone[y][x] != null)
+				    return;		
 	
-		      Zombie zombie = new Zombie(x, y, zombie_settings, isSuper);
-                      zone[y][x] = zombie;
-		      current_creatures++;
-		     zombies.add(zombie);
-	         }
+		        Zombie zombie = new Zombie(x, y, zombie_settings, isSuper);
+                zone[y][x] = zombie;
+		        current_creatures++;
+		        zombies.add(zombie);
+	        }
 		 public <T extends Creature> void change_position(int new_x, int new_y, T creature) {
 			
 			int[] old_xy = creature.get_xy();
 			int old_x = old_xy[0];
 			int old_y = old_xy[1];
 			zone[old_y][old_x] = null;
-                        creature.update_xy(new_x, new_y);
+            creature.update_xy(new_x, new_y);
 			zone[new_y][new_x] = creature;
 			
                        
@@ -121,34 +123,37 @@ public class World {
      }
      public void printWorld() {
          for (int i = 0; i <  this.zone.length; i++) {
-		     for (int j = 0; j < this.zone[i].length; j++) {
-			 if (this.zone[i][j] instanceof Human)
-			         System.out.print("H");
+		    for (int j = 0; j < this.zone[i].length; j++) {
+			    if (this.zone[i][j] instanceof Human)
+			        System.out.print("H");
 		         else if (this.zone[i][j] instanceof Zombie)
-			         System.out.print("Z");    
+			        System.out.print("Z");    
 		         if (j < (this.zone.length - 1))
-			          System.out.print(",");
+			        System.out.print(",");
 		         else
-			         System.out.println();	  
+			        System.out.println();	  
 		    }
 	     }
      }
      public ArrayList<int[]> get_available_spots(Creature creature) {
 		ArrayList<int[]> empty_spots = new ArrayList<>();
-	        for (int[] neighbor : creature.get_neighbors()) {
+	    for (int[] neighbor : creature.get_neighbors()) {
 			if (this.zone[neighbor[1]][neighbor[0]] == null)
 				empty_spots.add(neighbor);
 		}
 		return empty_spots;
      }
      public void spawnCreature(Creature creator) {
-                if (this.current_creatures >= this.max_creatures)
-			return;
-                int[] available_spot = this.get_available_spot(creator);
-	        boolean isSuper = (this.random.nextDouble() * (this.norm_constant) <= this.super_creature_spawn_rate ? true : false);
+        if (this.current_creatures >= this.max_creatures)
+		     return;
+        ArrayList<int[]> available_spots = this.get_available_spots(creator);
+	
+	    boolean isSuper = (this.random.nextDouble() * (this.norm_constant) <= this.super_creature_spawn_rate ? true : false);
+		int random_index = this.random.nextInt(available_spots.size());
+		int[] available_spot  = available_spots.get(random_index);
 		if (creator instanceof Human)
 		    creature_factory.spawnHuman(available_spot[0], available_spot[1], isSuper);
-                else if (creator instanceof Zombie)
+        else if (creator instanceof Zombie)
 			creature_factory.spawnZombie(available_spot[0], available_spot[1], isSuper);
      }
      public <T extends Creature> void changePosition(int x, int y, T creature) {
@@ -161,10 +166,7 @@ public class World {
 		     Ini.Section world_info,
 		     Ini.Section human_info,
 		     Ini.Section zombie_info
-     ) {
-	     
-	     
-             
+     ) {             
 	     this.human_spawn_rate = Double.parseDouble(world_info.get("human_spawn_rate"));
 	     this.zombie_spawn_rate = Double.parseDouble(world_info.get("zombie_spawn_rate"));
 	     this.visitor_rate = Double.parseDouble(world_info.get("visitor_rate"));
@@ -174,16 +176,16 @@ public class World {
 	     this.world_width = Integer.parseInt(world_info.get("world_width"));
 	     this.norm_constant = Double.parseDouble(world_info.get("world_norm_constant"));
              
-             human_info.put("world_height", this.world_height);
+         human_info.put("world_height", this.world_height);
 	     human_info.put("world_width", this.world_width);
-             this.human_settings = human_info;
+         this.human_settings = human_info;
 
 	     zombie_info.put("world_height", this.world_height);
 	     zombie_info.put("world_width", this.world_width);
-             this.zombie_settings = zombie_info;
+         this.zombie_settings = zombie_info;
              
 	     this.random = new Random();
-             this.zone = new Creature[this.world_height][this.world_width];
+         this.zone = new Creature[this.world_height][this.world_width];
 	     this.humans = new ArrayList<Human>();
 	     this.zombies = new ArrayList<Zombie>();
 	     this.super_creature_spawn_rate = Double.parseDouble(world_info.get("super_creature_spawn_rate"));

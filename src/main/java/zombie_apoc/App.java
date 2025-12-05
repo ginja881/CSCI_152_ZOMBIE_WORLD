@@ -4,7 +4,7 @@ package zombie_apoc;
 import zombie_apoc.Instances.Human;
 import zombie_apoc.Instances.World;
 import zombie_apoc.Instances.Zombie;
-
+import zombie_apoc.Instances.Creature;
 // Helpers
 import java.util.ArrayList;
 import java.util.Random;
@@ -22,13 +22,13 @@ class App {
 	private static int Y_INDEX = 1;
 
 	private static int running_days = 0;
-        private static Wini ini = null;
+    private static Wini ini = null;
 	private static World world = null;
 	// Given how different zombie and human are, I decided to divide their rolling into separate functions
 	public static void handleZombie(Zombie zombie) {
 		//TODO: As said above, implement method around zombie class for probabalistic handling
                                                      
-                for (int[] neighbor : zombie.get_neighbors()) {
+        for (int[] neighbor : zombie.get_neighbors()) {
 			int neighbor_x = neighbor[X_INDEX];
 			int neighbor_y = neighbor[Y_INDEX];
 
@@ -60,7 +60,7 @@ class App {
         
 	public static void initialize() {
 		try {
-                    InputStream input = App.class.getClassLoader().getResourceAsStream(configFile);
+            InputStream input = App.class.getClassLoader().getResourceAsStream(configFile);
 		    if (input == null) {
 				System.out.println("Config file not found");
 				System.exit(-1);
@@ -68,7 +68,7 @@ class App {
 		    ini = new Wini(input);
 		    world = new World(ini.get("World"), ini.get("Human"), ini.get("Zombie"));
 		   running_days = Integer.parseInt(ini.get("Main", "running_days"));
-                }
+        }
 		catch (IOException e) {
 			System.err.println("Something went wrong in parsing config! Using default values");
 
@@ -83,24 +83,22 @@ class App {
 		    world.printWorld();
 	         
 		    int current_zombie = 0;
-                    int current_human = 0;
+            int current_human = 0;
 
 		    int zombie_count = world.zombies.size();
 		    int human_count = world.humans.size();
-	            while (true) {
+	        while (current_human < human_count && current_zombie < zombie_count) {
 			    if (current_human < human_count)
-                                handleHuman(world.humans.get(current_human));
-		            if (current_zombie < zombie_count)
+                    handleHuman(world.humans.get(current_human));
+		        if (current_zombie < zombie_count)
 			        handleZombie(world.zombies.get(current_zombie));
-                                                                     
-			     if (current_zombie == zombie_count && current_human == human_count)
-				     break;
 			     current_zombie = (current_zombie < zombie_count ? current_zombie + 1 : current_zombie);
 			     current_human = (current_human < human_count ? current_human + 1 : current_human); 
 		    }
-                    running_days--;
+			world.introduceVisitor();
+            running_days--;
 			
-	            try {TimeUnit.SECONDS.sleep(10);}
+	        try {TimeUnit.SECONDS.sleep(10);}
 		    catch (InterruptedException e) {e.printStackTrace();}
 
 	    }

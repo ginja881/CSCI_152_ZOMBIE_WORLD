@@ -7,7 +7,7 @@
 package zombie_apoc.Instances;
 import zombie_apoc.Instances.World;
 import java.util.ArrayList;
-
+import java.util.Random;
 public abstract class Creature {
 	// Important attributes
 	
@@ -18,13 +18,13 @@ public abstract class Creature {
 	protected ArrayList<int[]> neighbors;
         // Rates for moving, death, and battling
 	protected double move_rate;
-        protected double battle_rate;
+    protected double battle_rate;
 	protected double norm_constant;
-
+    protected double super_rate_offset;
         // Necessary world info
 	protected int world_width;
 	protected int world_height;
-
+    protected Random rng;
 	// Neighbors
 	public abstract ArrayList<int[]> get_neighbors();
 	protected abstract void update_neighbors();

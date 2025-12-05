@@ -23,16 +23,16 @@ public class Human extends Creature {
 	// Neighbors
 	public ArrayList<int[]> get_neighbors() { return this.neighbors;};
 	protected void update_neighbors() {
-		this.neighbors = new ArrayList<int>();
+		this.neighbors = new ArrayList<int[]>();
 
 		if (this.x > 0)
-			this.neighbors.add((this.world_width + 1) - x, this.y);
+			this.neighbors.add(new int[] {(this.world_width + 1) - x, this.y});
 		if (this.x < (this.world_width - 1))
-			this.neighbors.add((this.world_width -1) + x, this.y);
+			this.neighbors.add(new int[]{(this.world_width -1) + x, this.y});
                 if (this.y > 0)
-			this.neighbors.add(this.x, (this.world_height -1) - y);
+			this.neighbors.add(new int[]{this.x, (this.world_height -1) - y});
 		if (this.y < (this.world_height - 1))
-			this.neighbors.add(this.x, (this.world_height - 1) + y);
+			this.neighbors.add(new int[] {this.x, (this.world_height - 1) + y});
 	}
 	public boolean move() {
 		double chance = this.rng.nextDouble() * (this.norm_constant);
@@ -42,12 +42,12 @@ public class Human extends Creature {
 	public boolean  battle() { // added by gabe  
 		double player_rate = this.battle_rate; 
                 
-	        boolean player_win = this.rng.nextDouble() * (this.norm_constant) <= this.player_rate;
+	    boolean player_win = this.rng.nextDouble() * (this.norm_constant) <= player_rate;
 		return  player_win;
 	}
 
 	public boolean reproduce(Human partner) { // added by gabe
-                 double overall_rate = (this.reproduce_rate + this.partner.reproduce_rate) / 2.0;
+                 double overall_rate = (this.reproduce_rate + partner.reproduce_rate) / 2.0;
                  return (this.rng.nextDouble() * this.norm_constant <= overall_rate ? true : false);
                  
 	}
@@ -64,19 +64,19 @@ public class Human extends Creature {
 	public Human(Ini.Section human_info, int x, int y, boolean isSuper) {
 		this.x = x;
 		this.y = y;
-                this.isSuper = isSuper;
-                this.rng = new Random();
+        this.isSuper = isSuper;
+        this.rng = new Random();
 
 		this.move_rate = Double.parseDouble(human_info.get("human_move_rate"));
 		this.reproduce_rate = Double.parseDouble(human_info.get("human_reproduce_rate"));
 		this.battle_rate = Double.parseDouble(human_info.get("human_battle_rate"));
-		this.super_rate_offset = Double.parseDouble(human_info.get("human_super__offset"));
+		this.super_rate_offset = Double.parseDouble(human_info.get("human_super_offset"));
 		this.norm_constant = Double.parseDouble(human_info.get("human_norm_constant"));
-		this.world_height = Integer.parseInteger(human_info.get("world_height"));
-		this.world_width = Integer.parseInteger(human_info.get("world_width"));
+		this.world_height = Integer.parseInt(human_info.get("world_height"));
+		this.world_width = Integer.parseInt(human_info.get("world_width"));
                 
-                if (this.isSuper)
-			this.battle_rate += this.super_offset;
+        if (this.isSuper)
+			this.battle_rate += this.super_rate_offset;
 
 		this.neighbors = new ArrayList<int[]>();
 		update_neighbors();
@@ -91,8 +91,8 @@ public class Human extends Creature {
 	
 		this.reproduce_rate = other_human.reproduce_rate;
 		this.battle_rate = other_human.battle_rate;
-	        this.super_rate_offset = other_human.super_offset; 
-                this.norm_constant = Double.parseDouble;
+	    this.super_rate_offset = other_human.super_rate_offset; 
+        this.norm_constant = other_human.norm_constant;
 		this.neighbors = new ArrayList<int[]>();
 		this.rng = new Random();
 
