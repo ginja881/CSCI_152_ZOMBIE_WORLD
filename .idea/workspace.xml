@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="825de13c-28d6-43e9-9c3e-65a231cd7f04" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/main/java/zombie_apoc/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/zombie_apoc/App.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/zombie_apoc/Instances/Human.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/zombie_apoc/Instances/Human.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/zombie_apoc/Instances/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/zombie_apoc/Instances/World.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/zombie_apoc/Instances/Zombie.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/zombie_apoc/Instances/Zombie.java" afterDir="false" />

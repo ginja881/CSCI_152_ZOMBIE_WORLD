@@ -16,16 +16,15 @@ import java.util.concurrent.TimeUnit;
 import org.ini4j.Wini;
 
 class App {
-	private static String configFile = "config.ini";
+	private static final String configFile = "config.ini";
 
-        private static int X_INDEX = 0;
-	private static int Y_INDEX = 1;
+    private static final int X_INDEX = 0;
+	private static final int Y_INDEX = 1;
 
 	private static int running_days = 0;
-    private static Wini ini = null;
-	private static World world = null;
+    private static World world = null;
 	// Given how different zombie and human are, I decided to divide their rolling into separate functions
-	public static void handleZombie(Zombie zombie) {
+	public static void handleZombies(Zombie zombie) {
 		//TODO: As said above, implement method around zombie class for probabalistic handling
                                                      
         for (int[] neighbor : zombie.get_neighbors()) {
@@ -40,7 +39,7 @@ class App {
 			}
 		}
 	}
-	public static void handleHuman(Human human) {
+	public static void handleHumans(Human human) {
 		//TODO: Just like handleZombie, implement method around human class for probabilistic handling
 
 		for (int[] neighbor : human.get_neighbors()) {
@@ -65,7 +64,7 @@ class App {
 				System.out.println("Config file not found");
 				System.exit(-1);
 			}
-		    ini = new Wini(input);
+            Wini ini = new Wini(input);
 		    world = new World(ini.get("World"), ini.get("Human"), ini.get("Zombie"));
 		   running_days = Integer.parseInt(ini.get("Main", "running_days"));
         }
@@ -89,9 +88,9 @@ class App {
 		    int human_count = world.humans.size();
 	        while (current_human < human_count && current_zombie < zombie_count) {
 			    if (current_human < human_count)
-                    handleHuman(world.humans.get(current_human));
+                    handleHumans(world.humans.get(current_human));
 		        if (current_zombie < zombie_count)
-			        handleZombie(world.zombies.get(current_zombie));
+			        handleZombies(world.zombies.get(current_zombie));
 			     current_zombie = (current_zombie < zombie_count ? current_zombie + 1 : current_zombie);
 			     current_human = (current_human < human_count ? current_human + 1 : current_human); 
 		    }
