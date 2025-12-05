@@ -17,48 +17,54 @@ import org.ini4j.Ini;
 
 
 public class Human extends Creature {
-        // Reproduction rate
+    // Reproduction rate
 	private double reproduce_rate;
+    private Random rng = new Random();
+    private double super_rate_offset;
        
 	// Neighbors
 	public ArrayList<int[]> get_neighbors() { return this.neighbors;};
 	protected void update_neighbors() {
 		this.neighbors = new ArrayList<int[]>();
 
-		if (this.x > 0)
-			this.neighbors.add(new int[] {(this.world_width + 1) - x, this.y});
-		if (this.x < (this.world_width - 1))
-			this.neighbors.add(new int[]{(this.world_width -1) + x, this.y});
-                if (this.y > 0)
-			this.neighbors.add(new int[]{this.x, (this.world_height -1) - y});
-		if (this.y < (this.world_height - 1))
-			this.neighbors.add(new int[] {this.x, (this.world_height - 1) + y});
+		if (this.x > 0) {
+            this.neighbors.add(new int[]{(this.world_width + 1) - x, this.y});
+        }
+		if (this.x < (this.world_width - 1)) {
+            this.neighbors.add(new int[]{(this.world_width - 1) + x, this.y});
+        }
+        if (this.y > 0) {
+            this.neighbors.add(new int[]{this.x, (this.world_height -1) - y});
+        }
+
+		if (this.y < (this.world_height - 1)) {
+            this.neighbors.add(new int[] {this.x, (this.world_height - 1) + y});
+        }
 	}
+
 	public boolean move() {
 		double chance = this.rng.nextDouble() * (this.norm_constant);
-		return (chance <= this.move_rate ? true : false);
+		return (chance <= this.move_rate);
 	}
 
 	public boolean  battle() { // added by gabe  
-		double player_rate = this.battle_rate; 
-                
-	    boolean player_win = this.rng.nextDouble() * (this.norm_constant) <= player_rate;
-		return  player_win;
+		double player_rate = this.battle_rate;
+        return this.rng.nextDouble() * (this.norm_constant) <= player_rate;
 	}
 
 	public boolean reproduce(Human partner) { // added by gabe
-                 double overall_rate = (this.reproduce_rate + partner.reproduce_rate) / 2.0;
-                 return (this.rng.nextDouble() * this.norm_constant <= overall_rate ? true : false);
-                 
+         double overall_rate = (this.reproduce_rate + partner.reproduce_rate) / 2.0;
+         return (this.rng.nextDouble() * this.norm_constant <= overall_rate);
 	}
 
 	public int[] get_xy() {
 		return new int[]{this.x, this.y};
 	}
+
 	public void update_xy(int x, int y) {
-               this.x = x;
-	       this.y = y;
-	       this.update_neighbors();
+       this.x = x;
+       this.y = y;
+       this.update_neighbors();
 	}
 	// Constructor
 	public Human(Ini.Section human_info, int x, int y, boolean isSuper) {

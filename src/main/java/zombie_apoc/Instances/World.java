@@ -45,9 +45,10 @@ public class World {
 	        int x = this.random.nextInt(this.world_width);
 		    int y = this.random.nextInt(this.world_height);
 
-		    if (zone[y][x] != null)
-			    continue;
-		    boolean is_super = (this.random.nextDouble() * this.norm_constant) <= this.super_creature_spawn_rate ? true : false;
+		    if (zone[y][x] != null) {continue;}
+
+		    boolean is_super = (this.random.nextDouble() * this.norm_constant) <= this.super_creature_spawn_rate;
+
 		    if (this.random.nextDouble() * this.norm_constant <= this.zombie_spawn_rate) {
 			    creature_factory.spawnZombie(x, y, is_super);
 				current_initial_creatures++;
@@ -60,28 +61,27 @@ public class World {
 
 	    } 
      }
+
      public void introduceVisitor() {
 	     // TODO: Implement method meant for spawning zombies or humans based off of visitor rates
 
-	    if (current_creatures == max_creatures)
-		    return;	
-        if (this.random.nextDouble() * (this.norm_constant) > this.visitor_rate)
-		    return;
+	    if (current_creatures == max_creatures) {return;}
+
+        if (this.random.nextDouble() * (this.norm_constant) > this.visitor_rate) {return;}
 
 	    int bounds_x[] = {0, world_width};
         int bounds_y[] = {0, world_height};
 	    
 	    double chance = this.random.nextDouble() * (this.norm_constant);
-        boolean isSuper = (this.random.nextDouble() * (this.norm_constant) <= this.super_creature_spawn_rate ? true : false);
+        boolean isSuper = (this.random.nextDouble() * (this.norm_constant) <= this.super_creature_spawn_rate);
+
 	    int bound_x = bounds_x[this.random.nextInt(2)];
 	    int bound_y = bounds_y[this.random.nextInt(2)];
-	    if (zone[bound_y][bound_x] != null) {
-		    return;
-	    }
+	    if (zone[bound_y][bound_x] != null) {return;}
 	    else {
-		    if (chance <= this.human_spawn_rate) 
-			    creature_factory.spawnHuman(bound_x, bound_y, isSuper);
-		    else if (chance <= this.zombie_spawn_rate)
+            if (chance <= this.human_spawn_rate)
+                creature_factory.spawnHuman(bound_x, bound_y, isSuper);
+            else if (chance <= this.zombie_spawn_rate)
                 creature_factory.spawnZombie(bound_x, bound_y, isSuper);
 	    }
 

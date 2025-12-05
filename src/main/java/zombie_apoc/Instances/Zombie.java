@@ -54,9 +54,7 @@ public class Zombie extends Creature {
 	 this.update_neighbors();
     }
     public Zombie(int x, int y, Ini.Section zombie_info, boolean isSuper) {
-		this.x = x;
-		this.y = y;
-                this.isSuper = isSuper;
+		this.x = x;this.y = y;this.isSuper = isSuper;
 		this.move_rate = Double.parseDouble(zombie_info.get("zombie_move_rate"));
 		this.infect_rate = Double.parseDouble(zombie_info.get("zombie_infect_rate"));
 		this.battle_rate = Double.parseDouble(zombie_info.get("zombie_battle_rate"));
