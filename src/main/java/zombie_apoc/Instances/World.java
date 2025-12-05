@@ -75,9 +75,8 @@ public class World {
         boolean isSuper = (this.random.nextDouble() * (this.norm_constant) <= this.super_creature_spawn_rate ? true : false);
 	    int bound_x = bounds_x[this.random.nextInt(2)];
 	    int bound_y = bounds_y[this.random.nextInt(2)];
-	    if (zone[bound_y][bound_x] != null) {
+	    if (zone[bound_y][bound_x] != null) 
 		    return;
-	    }
 	    else {
 		    if (chance <= this.human_spawn_rate) 
 			    creature_factory.spawnHuman(bound_x, bound_y, isSuper);

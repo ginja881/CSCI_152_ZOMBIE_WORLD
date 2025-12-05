@@ -5,6 +5,7 @@ import zombie_apoc.Instances.Human;
 import zombie_apoc.Instances.World;
 import zombie_apoc.Instances.Zombie;
 import zombie_apoc.Instances.Creature;
+import zombie_apoc.Visualization.VisualizationManager;
 // Helpers
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,7 +19,7 @@ import org.ini4j.Wini;
 class App {
 	private static String configFile = "config.ini";
 
-        private static int X_INDEX = 0;
+    private static int X_INDEX = 0;
 	private static int Y_INDEX = 1;
 
 	private static int running_days = 0;
@@ -38,6 +39,9 @@ class App {
 				world.changePosition(neighbor_y, neighbor_x, zombie);
 				break;
 			}
+			else if (neighbor_creature instanceof Zombie) {
+				
+			}
 		}
 	}
 	public static void handleHuman(Human human) {
@@ -50,10 +54,15 @@ class App {
 			Creature neighbor_creature = world.getCreature(neighbor_x, neighbor_y);
 
 			if (neighbor_creature == null && human.move()) {
-	                       world.changePosition(neighbor_y, neighbor_x, human);
-                               break;		       
+	            world.changePosition(neighbor_y, neighbor_x, human);
+                break;		       
 			}
-			
+			else if (neighbor_creature instanceof Human) {
+		        
+			}
+			else if (neighbor_creature instanceof Zombie) {
+                
+			}
 		}
 
 	}

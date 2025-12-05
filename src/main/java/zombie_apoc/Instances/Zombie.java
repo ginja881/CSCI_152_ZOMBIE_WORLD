@@ -19,7 +19,7 @@ public class Zombie extends Creature {
    private boolean isSuper;
    private Random rng;
    public boolean infect() {
-                boolean chance = this.rng.nextDouble() * this.norm_constant <= this.infect_rate;		
+        boolean chance = this.rng.nextDouble() * this.norm_constant <= this.infect_rate;		
 		return chance;
     }
 
@@ -41,28 +41,28 @@ public class Zombie extends Creature {
     }
 	
     public boolean battle() {
-	boolean chance = this.rng.nextDouble() * this.norm_constant <= this.battle_rate;
+	    boolean chance = this.rng.nextDouble() * this.norm_constant <= this.battle_rate;
         return chance;	
 	
     }
     public void update_ticker() {this.death_ticker--;};
     public int[] get_xy() {return new int[]{this.x, this.y};};
     public void update_xy(int x, int y) {
-         this.x = x;
-	 this.y = y;
+        this.x = x;
+	    this.y = y;
 
-	 this.update_neighbors();
+	    this.update_neighbors();
     }
     public Zombie(int x, int y, Ini.Section zombie_info, boolean isSuper) {
 		this.x = x;
 		this.y = y;
-                this.isSuper = isSuper;
+        this.isSuper = isSuper;
 		this.move_rate = Double.parseDouble(zombie_info.get("zombie_move_rate"));
 		this.infect_rate = Double.parseDouble(zombie_info.get("zombie_infect_rate"));
 		this.battle_rate = Double.parseDouble(zombie_info.get("zombie_battle_rate"));
-                this.norm_constant = Double.parseDouble(zombie_info.get("zombie_norm_constant"));
+        this.norm_constant = Double.parseDouble(zombie_info.get("zombie_norm_constant"));
 		this.death_ticker = Integer.parseInt(zombie_info.get("zombie_death_ticker"));
-                this.world_width = Integer.parseInt(zombie_info.get("world_width"));
+        this.world_width = Integer.parseInt(zombie_info.get("world_width"));
 		this.world_height = Integer.parseInt(zombie_info.get("world_height"));
 		this.rng = new Random();
 
@@ -73,7 +73,7 @@ public class Zombie extends Creature {
 	public Zombie(Zombie other_zombie) {
 		this.x = other_zombie.x;
 		this.y = other_zombie.y;
-                this.isSuper = other_zombie.isSuper;
+        this.isSuper = other_zombie.isSuper;
 		this.move_rate = other_zombie.move_rate;
 		this.infect_rate = other_zombie.infect_rate;
 		this.battle_rate = other_zombie.battle_rate;
@@ -81,7 +81,7 @@ public class Zombie extends Creature {
 		this.death_ticker = other_zombie.death_ticker;
 		this.world_width = other_zombie.world_width;
 		this.world_height = other_zombie.world_height;
-                this.rng = new Random();
+        this.rng = new Random();
 
 		this.neighbors = new ArrayList<int[]>();
 		update_neighbors();
