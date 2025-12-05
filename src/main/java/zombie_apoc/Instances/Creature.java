@@ -13,23 +13,26 @@ public abstract class Creature {
 	
 	protected int x;
 	protected int y;
-	
+	protected boolean isSuper; //indicating if a creature is super
+
 	protected ArrayList<int[]> neighbors;
-    // Rates for moving, death, and battling
-	public double move_rate;
-	public double death_rate;
-    public double battle_rate;
-	
+        // Rates for moving, death, and battling
+	protected double move_rate;
+        protected double battle_rate;
+	protected double norm_constant;
+
+        // Necessary world info
+	protected int world_width;
+	protected int world_height;
+
 	// Neighbors
 	public abstract ArrayList<int[]> get_neighbors();
 	protected abstract void update_neighbors();
 	// Battling, moving, and dying
-    public abstract void battle(Creature enemy);
+        public abstract boolean battle();
 
-	public abstract void move();
+	public abstract boolean move();
 
-	public abstract int get_x();
-	public abstract int get_y();
-
-	
+	public abstract int[] get_xy();
+	public abstract void update_xy(int x, int y);
 }
