@@ -5,78 +5,209 @@ import zombie_apoc.Instances.Human;
 import zombie_apoc.Instances.World;
 import zombie_apoc.Instances.Zombie;
 import zombie_apoc.Instances.Creature;
-import zombie_apoc.Visualization.VisualizationManager;
+
+// TODO: Implement visualization layer
+
+
 // Helpers
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.ArrayList; // Useful data structure
+import java.util.Random; // Maybe? 
+import java.util.concurrent.TimeUnit; // Time macros used for frame delay/proper animations
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 
+import java.io.IOException; // IO exception, may occur when parsing issues for ini config files happen
+import java.io.InputStream; // Useful for reading ini file
+
+// Parsing object for ini config files
 import org.ini4j.Wini;
 
 class App {
+	// Config file name (Located at ../resources/config.ini)
 	private static String configFile = "config.ini";
+    
 
+	// Useful variables for indexing neighbors/coordinates as arrays
     private static int X_INDEX = 0;
 	private static int Y_INDEX = 1;
-
-	private static int running_days = 0;
-    private static Wini ini = null;
-	private static World world = null;
+    
+	// Important variables
+	private static int running_days = 0; // total iterations of the main loop
+    private static Wini ini = null; // object used for parsing config file
+	private static World world = null; // world singleton 
+	private static Random rng = new Random();
+ 
 	// Given how different zombie and human are, I decided to divide their rolling into separate functions
-	public static void handleZombie(Zombie zombie) {
-		//TODO: As said above, implement method around zombie class for probabalistic handling
-                                                     
-        for (int[] neighbor : zombie.get_neighbors()) {
+	public static void handleZombie(Zombie current_zombie) {
+		
+		// Current zombie coordinates + key used for turns hashmap when done iterating through all neighbors
+        int current_zombie_x = current_zombie.get_x();
+		int current_zombie_y = current_zombie.get_y();	    
+
+		// Handling loop, occurrences are based off neighbors
+        for (int[] neighbor : current_zombie.get_neighbors()) {
+			// Neighbor coordinates {x_coordinate, y_coordinate}
 			int neighbor_x = neighbor[X_INDEX];
 			int neighbor_y = neighbor[Y_INDEX];
-
+            
+			// Creature object
 			Creature neighbor_creature = world.getCreature(neighbor_x, neighbor_y);
-
-			if (neighbor_creature == null && zombie.move()) {
-				world.changePosition(neighbor_y, neighbor_x, zombie);
-				break;
+            
+			// Code for move occurrence
+			if (neighbor_creature == null && current_zombie.move()) {
+				// Updating position and current_zombie coordinates
+				world.changePosition(neighbor_y, neighbor_x, current_zombie);
+                System.out.println("MOVE");
+				break; // turn is over
 			}
-			else if (neighbor_creature instanceof Zombie) {
+			// Code for battle occurrence
+			else if (neighbor_creature instanceof Human) {
+				  System.out.println("BATTLE");
+				// enemy
+				Human enemy_human = (Human)neighbor_creature;
+				// Check to see if they are both engaged and ready to fight
+				if (!(enemy_human.engage_battle() && current_zombie.engage_battle()))
+                   continue;
+				// Boolean variables used in result of fight
+				boolean enemy_win = enemy_human.battle();
+				boolean zombie_win = current_zombie.battle();
+                
+                enemy_human.update_current_day();
+				// Results
+				if (zombie_win && !enemy_win) {
+					// If zombie won, figure out if the enemy human gets infected or just dies
+					boolean infected = current_zombie.infect();
+					world.remove_creature(neighbor_x, neighbor_y);
+					if (infected)
+						world.spawnCreature(neighbor_x, neighbor_y, true);
+					break; // turn over
+				}
+				else if (enemy_win && !zombie_win) {
+					// If the enemy won, but zombie did not. The zombie would just die
+					world.remove_creature(current_zombie_x, current_zombie_y);
+					return;
+				}
+				else 
+					continue;
+
 				
 			}
 		}
+        current_zombie.update_ticker();
+        // Kill zombie if ticker is less than or equal to 0 or continue by updating current day
+		if (current_zombie.get_ticker() <= 0)
+			world.remove_creature(current_zombie_x, current_zombie_y);
+		else
+			current_zombie.update_current_day();
+		
 	}
-	public static void handleHuman(Human human) {
-		//TODO: Just like handleZombie, implement method around human class for probabilistic handling
-
-		for (int[] neighbor : human.get_neighbors()) {
+	public static void handleHuman(Human current_human) {
+        // Child object if current_human ever reproduces
+		// Coordinates of current human
+		int current_human_x = current_human.get_x();
+		int current_human_y = current_human.get_y();
+		// Event loop by checking neighbors
+		for (int[] neighbor : current_human.get_neighbors()) {
+			// current neighbor x and y
 			int neighbor_x = neighbor[X_INDEX];
 			int neighbor_y = neighbor[Y_INDEX];
-
+            
+			// Getting neighbor
 			Creature neighbor_creature = world.getCreature(neighbor_x, neighbor_y);
-
-			if (neighbor_creature == null && human.move()) {
-	            world.changePosition(neighbor_y, neighbor_x, human);
+            
+			// Move
+			if (neighbor_creature == null && current_human.move()) {
+				// Change position
+				System.out.println("MOVE");
+	            world.changePosition(neighbor_y, neighbor_x, current_human);
                 break;		       
 			}
-			else if (neighbor_creature instanceof Human) {
-		        
-			}
-			else if (neighbor_creature instanceof Zombie) {
+			else if (neighbor_creature instanceof Human && current_human.reproduce((Human)neighbor_creature)) {
+				// Reproduce
+				System.out.println("REPRODUCE");
+
+				// Empty spots for spawning child
+                ArrayList<int[]> partner_spots = world.get_available_spots(neighbor_creature);
+		        ArrayList<int[]> current_human_spots = world.get_available_spots(neighbor_creature);
+
+				// random variable for deciding empty spot
+				int random_index = 0;
                 
+				// Updating current day of neighbor
+                neighbor_creature.update_current_day();
+				// Checking if partner_spots can be used for spawning child
+				if (!partner_spots.isEmpty())  {
+					// Selecting random spot and spawning child
+					random_index = rng.nextInt(partner_spots.size());
+					int[] coordinate = partner_spots.get(random_index);
+					world.spawnCreature(coordinate[X_INDEX], coordinate[Y_INDEX], false);
+					break;
+				}
+				// Checking if current_human_spots can be used for spawning child if partner_spots can't
+				else if (!current_human_spots.isEmpty()) {
+					// Selecting random spot and spawning child
+					random_index = rng.nextInt(current_human_spots.size());
+					int[] coordinate = partner_spots.get(random_index);
+                    world.spawnCreature(coordinate[X_INDEX], coordinate[Y_INDEX], false);
+					break;
+				}
+				// If all fails, then there is no valid space for a child
+                else
+					continue;
+			}
+			// Battling
+			else if (neighbor_creature instanceof Zombie) { 
+				System.out.println("BATTLE");
+				// Enemy zombie
+				Zombie enemy_zombie = (Zombie)neighbor_creature;
+
+				// Do both want to fight?
+				if (!(enemy_zombie.engage_battle() && current_human.engage_battle()))
+                   continue;
+				// Fight! Variables store results
+                boolean human_win = current_human.battle(); 
+                boolean zombie_win = enemy_zombie.battle();
+                
+				// Did the human lose and the zombie win? See if human either just dies or becomes zombie
+				if (!human_win && zombie_win) {
+					// Infection occurrence
+					boolean infected = enemy_zombie.infect();
+					// Did no infection occur
+					if (!infected) {
+						// Remove the creature
+					    world.remove_creature(current_human_x, current_human_y);
+						return;
+					}
+					else {
+						// Remove and spawn zombie in place of human
+						world.remove_creature(current_human_x, current_human_y);
+						world.spawnCreature(current_human_x, current_human_y, true);
+					}
+				}
+				// Did human win and zombie lose? If so, then remove zombie
+				else if (human_win && !zombie_win)
+					world.remove_creature(enemy_zombie.get_x(), enemy_zombie.get_y());
+			    // Tie? Nothing happens
+				else 
+					continue;
 			}
 		}
-
+		// Update current day for current_human
+        current_human.update_current_day();
 	}
-        
+    // Initialization stage
 	public static void initialize() {
 		try {
+			// Input stream for ini file
             InputStream input = App.class.getClassLoader().getResourceAsStream(configFile);
 		    if (input == null) {
 				System.out.println("Config file not found");
 				System.exit(-1);
 			}
+			// Parse ini file
 		    ini = new Wini(input);
-		    world = new World(ini.get("World"), ini.get("Human"), ini.get("Zombie"));
-		   running_days = Integer.parseInt(ini.get("Main", "running_days"));
+			running_days = Integer.parseInt(ini.get("Main", "running_days"));
+		    world = new World(ini.get("World"), ini.get("Human"), ini.get("Zombie"), running_days);
+		
         }
 		catch (IOException e) {
 			System.err.println("Something went wrong in parsing config! Using default values");
@@ -84,32 +215,49 @@ class App {
 		}
 	}
 	public static void main (String[] args) {
+		// Begin initialization stage
         initialize();
-	    while (running_days > 0) {
-		    System.out.print("\033[H\033[2J");
-		    System.out.flush();
+		// Current day
+		int current_day = 0;
+		// Main loop
+	    while (current_day < running_days) {
+	        // Iterate and process any cell at (x,y)
+			for (int y = 0; y < world.world_height; y++) {
+				for (int x = 0; x < world.world_width; x++) {
+					// Cleaning terminal
+                    System.out.print("\033[H\033[2J");
+		            System.out.flush();
+                    
+					// Print world
+		            world.printWorld();
 
-		    world.printWorld();
-	         
-		    int current_zombie = 0;
-            int current_human = 0;
+					//Grab cell
+                    Creature current_cell = world.getCreature(x, y);
 
-		    int zombie_count = world.zombies.size();
-		    int human_count = world.humans.size();
-	        while (current_human < human_count && current_zombie < zombie_count) {
-			    if (current_human < human_count)
-                    handleHuman(world.humans.get(current_human));
-		        if (current_zombie < zombie_count)
-			        handleZombie(world.zombies.get(current_zombie));
-			     current_zombie = (current_zombie < zombie_count ? current_zombie + 1 : current_zombie);
-			     current_human = (current_human < human_count ? current_human + 1 : current_human); 
-		    }
-			world.introduceVisitor();
-            running_days--;
+					// Check if current_cell is either null or in different day
+                    if (current_cell == null || current_cell.get_current_day() != current_day) {
+					    try {TimeUnit.SECONDS.sleep(4);}
+		                catch (InterruptedException e) {e.printStackTrace();}
+						continue;
+					}
+					// Else process events 
+                    else {
+						if (current_cell instanceof Human)
+							handleHuman((Human)current_cell);
+						else if (current_cell instanceof Zombie)
+							handleZombie((Zombie)current_cell);
+					}
 			
-	        try {TimeUnit.SECONDS.sleep(10);}
-		    catch (InterruptedException e) {e.printStackTrace();}
-
+                    // Refresh rate
+					try {TimeUnit.MILLISECONDS.sleep(100);}
+		            catch (InterruptedException e) {e.printStackTrace();}
+				}
+				// Maybe spawn visitor at end of row
+				world.introduceVisitor();
+			}
+            // Update current day and in world
+            current_day++;
+			world.update_current_day();
 	    }
 	}
 }
