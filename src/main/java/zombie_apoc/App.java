@@ -61,7 +61,7 @@ class App {
 			// Code for move occurrence
 			if (neighbor_creature == null && current_zombie.move()) {
 				// Updating position and current_zombie coordinates
-				world.changePosition(neighbor_y, neighbor_x, current_zombie);
+				world.changePosition(neighbor_x, neighbor_y, current_zombie);
 				break; // turn is over
 			}
 			// Code for battle occurrence
@@ -121,7 +121,7 @@ class App {
 			if (neighbor_creature == null && current_human.move()) {
 				// Change position
 				
-	            world.changePosition(neighbor_y, neighbor_x, current_human);
+	            world.changePosition(neighbor_x, neighbor_y, current_human);
                 break;		       
 			}
 			else if (neighbor_creature instanceof Human && current_human.reproduce((Human)neighbor_creature)) {
