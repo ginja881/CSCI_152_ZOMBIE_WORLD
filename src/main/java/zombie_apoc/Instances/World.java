@@ -29,14 +29,16 @@ public class World {
 	 // Max and current creatures
      private int max_creatures;
      private int current_creatures;
-
+     
+	 // Useful stat
+	 private int visitor_count;
 	 // Rates
      private double human_spawn_rate;
      private double zombie_spawn_rate;
      private double visitor_rate;
      private double norm_constant;
      private double super_creature_spawn_rate;
-   
+     
 	 // Immutable world height and width
      public final int world_width;
      public final int world_height; 
@@ -50,9 +52,10 @@ public class World {
      
      private void generateWorld() {
 		// Deciding how many creatures to place
-        int max_initial_creatures = this.world_width;
-	    int current_initial_creatures = 0;
-        while (current_initial_creatures < max_initial_creatures) {
+        int max_attempts = this.world_width;
+		int current_attempt = 0;
+        while (current_attempt < max_attempts) {
+			current_attempt++;
 			// XY indices 
 	        int x = this.random.nextInt(this.world_width);
 		    int y = this.random.nextInt(this.world_height);
@@ -67,12 +70,10 @@ public class World {
 			// Spawn zombie
 		    if (this.random.nextDouble() * this.norm_constant <= this.zombie_spawn_rate) {
 			    creature_factory.spawnZombie(x, y, is_super);
-				current_initial_creatures++;
 			}
 			// Spawn human
 		    else if (this.random.nextDouble() * this.norm_constant <= this.human_spawn_rate) {
 			    creature_factory.spawnHuman(x, y, is_super);
-		        current_initial_creatures++;
 			}
 	    } 
      }
@@ -113,6 +114,7 @@ public class World {
 		   if (chosen_cell != null) 
 		        return;
 	       else {
+			    visitor_count++;
 			    // spawn chance used for deciding which visitors spawn which
 		        if (spawn_chance <= this.human_spawn_rate) 
 			        creature_factory.spawnHuman(chosen, random_y, isSuper);
@@ -130,6 +132,7 @@ public class World {
 		        return;
 	        else {
 				// spawn chance used for deciding which visitors spawn which
+				visitor_count++;
 		        if (spawn_chance <= this.human_spawn_rate) 
 			        creature_factory.spawnHuman(random_x, chosen, isSuper);
 		        else if (spawn_chance <= this.zombie_spawn_rate)
@@ -211,7 +214,7 @@ public class World {
 				}
 				else if (this.zone[y][x] == null)
 					System.out.print("|  |");
-		        if (x == (this.zone.length - 1))
+		        if (x == (this.zone[y].length - 1))
 			        System.out.println();	  
 		    }
 	     }
@@ -256,6 +259,9 @@ public class World {
 	 public void update_current_day(int actual_current_day) {
 		this.current_day = actual_current_day;
 	 }
+	 public int get_visitor_count() {return this.visitor_count;}
+     
+	 public int get_current_creatures() {return this.current_creatures;}
 	 // Main constructor
      public World(
 		     Ini.Section world_info,
@@ -288,11 +294,14 @@ public class World {
              
 	     this.random = new Random(); // Used for events like spawning visitors and initial creatures
          this.zone = new Creature[this.world_height][this.world_width];
-
+          
+		 // Humans and zombies
 		 this.humans = new ArrayList<>();
 		 this.zombies = new ArrayList<>();
 
-             
+         //visitor_stat
+		 this.visitor_count = 0;
+
 	     generateWorld();
      }       
 	 

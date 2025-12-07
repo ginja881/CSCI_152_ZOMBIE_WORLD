@@ -11,6 +11,7 @@ import zombie_apoc.Instances.Creature;
 
 // Helpers
 import java.util.ArrayList; // Useful data structure
+import java.util.HashMap;
 import java.util.Random; // Maybe? 
 import java.util.concurrent.TimeUnit; // Time macros used for frame delay/proper animations
 
@@ -20,6 +21,8 @@ import java.io.InputStream; // Useful for reading ini file
 
 // Parsing object for ini config files
 import org.ini4j.Wini;
+
+
 
 class App {
 	// Config file name (Located at ../resources/config.ini)
@@ -35,7 +38,15 @@ class App {
     private static Wini ini = null; // object used for parsing config file
 	private static World world = null; // world singleton 
 	private static Random rng = new Random();
- 
+    
+
+	// Stats
+    private static int infections = 0;
+	private static int deaths = 0;
+	private static int moves = 0;
+	private static int births = 0;
+	private static int battles_engaged = 0;
+
 	// Given how different zombie and human are, I decided to divide their rolling into separate functions
 	public static void handleZombie(Zombie current_zombie) {
 		
@@ -59,15 +70,18 @@ class App {
 			if (neighbor_creature == null && current_zombie.move()) {
 				// Updating position and current_zombie coordinates
 				world.changePosition(neighbor_x, neighbor_y, current_zombie);
+				moves++;
 				break; // turn is over
 			}
 			// Code for battle occurrence
 			else if (neighbor_creature instanceof Human) {
+				
 				// enemy
 				Human enemy_human = (Human)neighbor_creature;
 				// Check to see if they are both engaged and ready to fight
 				if (!(enemy_human.engage_battle() && current_zombie.engage_battle()))
                    continue;
+				battles_engaged++;
 				// Boolean variables used in result of fight
 				boolean enemy_win = enemy_human.battle();
 				boolean zombie_win = current_zombie.battle();
@@ -78,13 +92,17 @@ class App {
 					// If zombie won, figure out if the enemy human gets infected or just dies
 					boolean infected = current_zombie.infect();
 					world.remove_creature(enemy_human);
-					if (infected)
+					deaths++;
+					if (infected) {
 						world.spawnCreature(neighbor_x, neighbor_y, true);
+						infections++;
+					}
 					break; // turn over
 				}
 				else if (enemy_win && !zombie_win) {
 					// If the enemy won, but zombie did not. The zombie would just die
 					world.remove_creature(current_zombie);
+					deaths++;
 					return;
 				}
 				else 
@@ -119,6 +137,7 @@ class App {
 				// Change position
 				
 	            world.changePosition(neighbor_x, neighbor_y, current_human);
+				moves++;
                 break;		       
 			}
 			else if (neighbor_creature instanceof Human && current_human.reproduce((Human)neighbor_creature)) {
@@ -139,6 +158,7 @@ class App {
 					random_index = rng.nextInt(partner_spots.size());
 					int[] coordinate = partner_spots.get(random_index);
 					world.spawnCreature(coordinate[X_INDEX], coordinate[Y_INDEX], false);
+					births++;
 					break;
 				}
 				// Checking if current_human_spots can be used for spawning child if partner_spots can't
@@ -147,6 +167,7 @@ class App {
 					random_index = rng.nextInt(current_human_spots.size());
 					int[] coordinate = current_human_spots.get(random_index);
                     world.spawnCreature(coordinate[X_INDEX], coordinate[Y_INDEX], false);
+					births++;
 					break;
 				}
 				// If all fails, then there is no valid space for a child
@@ -162,6 +183,7 @@ class App {
 				if (!(enemy_zombie.engage_battle() && current_human.engage_battle()))
                    continue;
 				// Fight! Variables store results
+				battles_engaged++;
                 boolean human_win = current_human.battle(); 
                 boolean zombie_win = enemy_zombie.battle();
                 
@@ -169,6 +191,7 @@ class App {
 				if (!human_win && zombie_win) {
 					// Infection occurrence
 					boolean infected = enemy_zombie.infect();
+					deaths++;
 					// Did no infection occur
 					if (!infected) {
 						// Remove the creature
@@ -177,13 +200,16 @@ class App {
 					}
 					else {
 						// Remove and spawn zombie in place of human
+						infections++;
 						world.remove_creature(current_human);
 						world.spawnCreature(current_human_x, current_human_y, true);
 					}
 				}
 				// Did human win and zombie lose? If so, then remove zombie
-				else if (human_win && !zombie_win)
+				else if (human_win && !zombie_win) {
+					deaths++;
 					world.remove_creature(enemy_zombie);
+				}
 			    // Tie? Nothing happens
 				else 
 					continue;
@@ -212,6 +238,21 @@ class App {
 
 		}
 	}
+	// Printing stats
+	public static void printStats() {
+        System.out.println("\n---- STATS --- ");
+		// World stats
+		System.out.printf("Current creatures: %d\n", world.get_current_creatures());
+		System.out.printf("Visitor count: %d\n", world.get_visitor_count());
+		
+		// Creature stats
+		System.out.printf("Moves: %d\n", moves);
+        System.out.printf("Births: %d\n", births);
+		System.out.printf("Battles engaged: %d\n", battles_engaged);
+		System.out.printf("Infections: %d\n", infections);
+		System.out.printf("Deaths: %d\n", deaths);
+		
+	}
 	public static void main (String[] args) {
 		// Begin initialization stage
         initialize();
@@ -225,8 +266,10 @@ class App {
             System.out.print("\033[H\033[2J");
 		    System.out.flush();
                     
-			// Print world
+			// Print world & stats
 		    world.printWorld();
+			printStats();
+			
             world.update_current_day(current_day+1);
 
 			// Process humans
