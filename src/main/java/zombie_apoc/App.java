@@ -235,7 +235,6 @@ class App {
 		        Human current_human = world.humans.get(i);
 				// Check to see if human already went, else process it
 	    		if (current_human.get_current_day() != current_day) {
-					System.out.println("Skipped human");
 					continue;
 				}
 				else {
@@ -249,7 +248,6 @@ class App {
 				Zombie current_zombie = world.zombies.get(j);
 				// Check to see if zombie already went, else process it
                 if (current_zombie.get_current_day() != current_day) {
-					System.out.println("Skipped zombie");
 					continue;
 				}
 				else {
