@@ -25,8 +25,7 @@ public class World {
      private Ini.Section zombie_settings;
      
 	 // Running days
-     private int running_day;
-
+     private int current_day;
 	 // Max and current creatures
      private int max_creatures;
      private int current_creatures;
@@ -51,7 +50,7 @@ public class World {
      
      private void generateWorld() {
 		// Deciding how many creatures to place
-        int max_initial_creatures = (int)Math.sqrt(this.world_width * this.world_height);
+        int max_initial_creatures = this.world_width;
 	    int current_initial_creatures = 0;
         while (current_initial_creatures < max_initial_creatures) {
 			// XY indices 
@@ -71,7 +70,7 @@ public class World {
 				current_initial_creatures++;
 			}
 			// Spawn human
-		    if (this.random.nextDouble() * this.norm_constant <= this.human_spawn_rate) {
+		    else if (this.random.nextDouble() * this.norm_constant <= this.human_spawn_rate) {
 			    creature_factory.spawnHuman(x, y, is_super);
 		        current_initial_creatures++;
 			}
@@ -149,7 +148,7 @@ public class World {
 	            if (zone[y][x] != null)
 				     return;		
 	            // Allocating new human object
-		        Human human = new Human(human_settings, x, y, isSuper, running_day);
+		        Human human = new Human(human_settings, x, y, isSuper, current_day);
 		        zone[y][x] = human;
 
 		        // Incrementing current creatures
@@ -166,7 +165,7 @@ public class World {
 				    return;		
 	            
 				// Allocating new zombie object
-		        Zombie zombie = new Zombie(x, y, zombie_settings, isSuper, running_day);
+		        Zombie zombie = new Zombie(x, y, zombie_settings, isSuper, current_day);
                 zone[y][x] = zombie;
 				// Incrementing current creatures
 		        current_creatures++;
@@ -184,9 +183,17 @@ public class World {
 			
                        
 		 }
-		 public void remove_creature(int x, int y) {
+		 public <T extends Creature> void remove_creature(T creature) {
 			// Wiping out cell
-			zone[y][x] = null;
+			int creature_x = creature.get_x();
+			int creature_y = creature.get_y();
+			zone[creature_y][creature_x] = null;
+			if (creature instanceof Human)
+				humans.remove(creature);
+			else if (creature instanceof Zombie)
+				zombies.remove(creature);
+
+			current_creatures--;
 		 }
      }
      public void printWorld() {
@@ -240,24 +247,23 @@ public class World {
 	     creature_factory.change_position(x, y, creature);
      }
 	 // Wrapper for removing creatures at (x,y)
-	 public void remove_creature(int x, int y) {
-		creature_factory.remove_creature(x, y);
+	 public <T extends Creature> void remove_creature(T creature) {
+		creature_factory.remove_creature(creature);
 	 }
 	 // Getting creature at (x,y)
      public Creature getCreature(int x, int y) {return zone[y][x];};
 	 // Updating current day
-	 public void update_current_day() {
-		this.running_day++;
+	 public void update_current_day(int actual_current_day) {
+		this.current_day = actual_current_day;
 	 }
 	 // Main constructor
      public World(
 		     Ini.Section world_info,
 		     Ini.Section human_info,
-		     Ini.Section zombie_info,
-			 int running_day
+		     Ini.Section zombie_info
      ) {
 		 // Running day
-         this.running_day = 0;
+         this.current_day = 0;
 		 
 		 // Rates and important attributes for world
 	     this.human_spawn_rate = Double.parseDouble(world_info.get("human_spawn_rate"));

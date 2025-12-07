@@ -32,9 +32,9 @@ public class Human extends Creature {
 		if (this.x < (this.world_width - 1))
 			this.neighbors.add(new int[]{this.x+1, this.y});
         if (this.y > 0)
-			this.neighbors.add(new int[]{this.x, y-1});
+			this.neighbors.add(new int[]{this.x, this.y-1});
 		if (this.y < (this.world_height - 1))
-			this.neighbors.add(new int[] {this.x, y+1});
+			this.neighbors.add(new int[] {this.x, this.y+1});
 	}
 	public boolean move() {
 		// Move rate check

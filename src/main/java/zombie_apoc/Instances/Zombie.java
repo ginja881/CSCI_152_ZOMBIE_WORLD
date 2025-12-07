@@ -26,6 +26,7 @@ public class Zombie extends Creature {
 
     public ArrayList<int[]> get_neighbors() {return this.neighbors;}
     protected void update_neighbors() {
+		this.neighbors = new ArrayList<>();
 		if (this.x  > 0)
 			this.neighbors.add(new int[]{this.x -1, this.y});
 		if (this.x < this.world_width-1)

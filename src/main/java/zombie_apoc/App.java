@@ -40,13 +40,10 @@ class App {
 	public static void handleZombie(Zombie current_zombie) {
 		
 		// Current zombie coordinates + key used for turns hashmap when done iterating through all neighbors
-        int current_zombie_x = current_zombie.get_x();
-		int current_zombie_y = current_zombie.get_y();	    
-        
 		current_zombie.update_ticker();
         // Kill zombie if ticker is less than or equal to 0 or continue by updating current day
 		if (current_zombie.get_ticker() <= 0)
-			world.remove_creature(current_zombie_x, current_zombie_y);
+			world.remove_creature(current_zombie);
 		else
 			current_zombie.update_current_day();
 		// Handling loop, occurrences are based off neighbors
@@ -80,14 +77,14 @@ class App {
 				if (zombie_win && !enemy_win) {
 					// If zombie won, figure out if the enemy human gets infected or just dies
 					boolean infected = current_zombie.infect();
-					world.remove_creature(neighbor_x, neighbor_y);
+					world.remove_creature(enemy_human);
 					if (infected)
 						world.spawnCreature(neighbor_x, neighbor_y, true);
 					break; // turn over
 				}
 				else if (enemy_win && !zombie_win) {
 					// If the enemy won, but zombie did not. The zombie would just die
-					world.remove_creature(current_zombie_x, current_zombie_y);
+					world.remove_creature(current_zombie);
 					return;
 				}
 				else 
@@ -129,7 +126,7 @@ class App {
 
 				// Empty spots for spawning child
                 ArrayList<int[]> partner_spots = world.get_available_spots(neighbor_creature);
-		        ArrayList<int[]> current_human_spots = world.get_available_spots(neighbor_creature);
+		        ArrayList<int[]> current_human_spots = world.get_available_spots(current_human);
 
 				// random variable for deciding empty spot
 				int random_index = 0;
@@ -137,7 +134,7 @@ class App {
 				// Updating current day of neighbor
                 neighbor_creature.update_current_day();
 				// Checking if partner_spots can be used for spawning child
-				if (!partner_spots.isEmpty())  {
+				if (partner_spots.size() != 0)  {
 					// Selecting random spot and spawning child
 					random_index = rng.nextInt(partner_spots.size());
 					int[] coordinate = partner_spots.get(random_index);
@@ -145,10 +142,10 @@ class App {
 					break;
 				}
 				// Checking if current_human_spots can be used for spawning child if partner_spots can't
-				else if (!current_human_spots.isEmpty()) {
+				else if (current_human_spots.size() != 0) {
 					// Selecting random spot and spawning child
 					random_index = rng.nextInt(current_human_spots.size());
-					int[] coordinate = partner_spots.get(random_index);
+					int[] coordinate = current_human_spots.get(random_index);
                     world.spawnCreature(coordinate[X_INDEX], coordinate[Y_INDEX], false);
 					break;
 				}
@@ -175,18 +172,18 @@ class App {
 					// Did no infection occur
 					if (!infected) {
 						// Remove the creature
-					    world.remove_creature(current_human_x, current_human_y);
+					    world.remove_creature(current_human);
 						return;
 					}
 					else {
 						// Remove and spawn zombie in place of human
-						world.remove_creature(current_human_x, current_human_y);
+						world.remove_creature(current_human);
 						world.spawnCreature(current_human_x, current_human_y, true);
 					}
 				}
 				// Did human win and zombie lose? If so, then remove zombie
 				else if (human_win && !zombie_win)
-					world.remove_creature(enemy_zombie.get_x(), enemy_zombie.get_y());
+					world.remove_creature(enemy_zombie);
 			    // Tie? Nothing happens
 				else 
 					continue;
@@ -207,7 +204,7 @@ class App {
 			// Parse ini file
 		    ini = new Wini(input);
 			running_days = Integer.parseInt(ini.get("Main", "running_days"));
-		    world = new World(ini.get("World"), ini.get("Human"), ini.get("Zombie"), running_days);
+		    world = new World(ini.get("World"), ini.get("Human"), ini.get("Zombie"));
 		
         }
 		catch (IOException e) {
@@ -219,9 +216,8 @@ class App {
 		// Begin initialization stage
         initialize();
 		// Current day
-		int current_day = 0;
 		// Main loop
-	    
+	    int current_day =0;
 	    while (current_day < running_days) {
 	        // Iterate and process any cell at (x,y)
 			
@@ -231,25 +227,37 @@ class App {
                     
 			// Print world
 		    world.printWorld();
-            world.update_current_day();
+            world.update_current_day(current_day+1);
+
+			// Process humans
 			for (int i = 0; i < world.humans.size(); i++) {
+				// get current  human
 		        Human current_human = world.humans.get(i);
-	    		if (current_human.get_current_day() != current_day)
+				// Check to see if human already went, else process it
+	    		if (current_human.get_current_day() != current_day) {
+					System.out.println("Skipped human");
 					continue;
+				}
 				else {
 			        handleHuman(current_human);
 				}
+				// Check to see if a visitor should spawn
 				world.introduceVisitor();
 			}
 			for (int j = 0; j < world.zombies.size(); j++) {
+				// Get current zombie
 				Zombie current_zombie = world.zombies.get(j);
-                if (current_zombie.get_current_day() != current_day)
+				// Check to see if zombie already went, else process it
+                if (current_zombie.get_current_day() != current_day) {
+					System.out.println("Skipped zombie");
 					continue;
+				}
 				else {
 
 					handleZombie(current_zombie);
 					
 				}
+				// Introduce visitor
 				world.introduceVisitor();
 			}
             // Update current day and in world
