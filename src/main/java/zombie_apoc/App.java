@@ -239,9 +239,10 @@ class App {
 		}
 	}
 	// Printing stats
-	public static void printStats() {
+	public static void printStats(int current_day) {
         System.out.println("\n---- STATS --- ");
 		// World stats
+		System.out.printf("Day: %d\n", current_day);
 		System.out.printf("Current creatures: %d\n", world.get_current_creatures());
 		System.out.printf("Visitor count: %d\n", world.get_visitor_count());
 		
@@ -268,8 +269,8 @@ class App {
                     
 			// Print world & stats
 		    world.printWorld();
-			printStats();
-			
+			printStats(current_day+1);
+
             world.update_current_day(current_day+1);
 
 			// Process humans
