@@ -69,12 +69,12 @@ public class Zombie extends Creature {
     public void update_current_day(int day) {this.current_day = day;}
 	public boolean isSuper() {return this.isSuper;}
 	
-    public Zombie(int x, int y, Ini.Section zombie_info, boolean isSuper) {
+    public Zombie(int x, int y, Ini.Section zombie_info, boolean isSuper, int running_day) {
         
 		// Position and day
 		this.x = x;
 		this.y = y;
-        this.current_day = 0;
+        this.current_day = running_day;
 		// 
         this.isSuper = isSuper;
         

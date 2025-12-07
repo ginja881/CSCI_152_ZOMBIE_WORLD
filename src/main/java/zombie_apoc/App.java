@@ -42,7 +42,13 @@ class App {
 		// Current zombie coordinates + key used for turns hashmap when done iterating through all neighbors
         int current_zombie_x = current_zombie.get_x();
 		int current_zombie_y = current_zombie.get_y();	    
-
+        
+		current_zombie.update_ticker();
+        // Kill zombie if ticker is less than or equal to 0 or continue by updating current day
+		if (current_zombie.get_ticker() <= 0)
+			world.remove_creature(current_zombie_x, current_zombie_y);
+		else
+			current_zombie.update_current_day();
 		// Handling loop, occurrences are based off neighbors
         for (int[] neighbor : current_zombie.get_neighbors()) {
 			// Neighbor coordinates {x_coordinate, y_coordinate}
@@ -56,12 +62,10 @@ class App {
 			if (neighbor_creature == null && current_zombie.move()) {
 				// Updating position and current_zombie coordinates
 				world.changePosition(neighbor_y, neighbor_x, current_zombie);
-                System.out.println("MOVE");
 				break; // turn is over
 			}
 			// Code for battle occurrence
 			else if (neighbor_creature instanceof Human) {
-				  System.out.println("BATTLE");
 				// enemy
 				Human enemy_human = (Human)neighbor_creature;
 				// Check to see if they are both engaged and ready to fight
@@ -92,12 +96,8 @@ class App {
 				
 			}
 		}
-        current_zombie.update_ticker();
-        // Kill zombie if ticker is less than or equal to 0 or continue by updating current day
-		if (current_zombie.get_ticker() <= 0)
-			world.remove_creature(current_zombie_x, current_zombie_y);
-		else
-			current_zombie.update_current_day();
+     
+	
 		
 	}
 	public static void handleHuman(Human current_human) {
@@ -105,6 +105,9 @@ class App {
 		// Coordinates of current human
 		int current_human_x = current_human.get_x();
 		int current_human_y = current_human.get_y();
+        
+        current_human.update_current_day();
+
 		// Event loop by checking neighbors
 		for (int[] neighbor : current_human.get_neighbors()) {
 			// current neighbor x and y
@@ -117,13 +120,12 @@ class App {
 			// Move
 			if (neighbor_creature == null && current_human.move()) {
 				// Change position
-				System.out.println("MOVE");
+				
 	            world.changePosition(neighbor_y, neighbor_x, current_human);
                 break;		       
 			}
 			else if (neighbor_creature instanceof Human && current_human.reproduce((Human)neighbor_creature)) {
 				// Reproduce
-				System.out.println("REPRODUCE");
 
 				// Empty spots for spawning child
                 ArrayList<int[]> partner_spots = world.get_available_spots(neighbor_creature);
@@ -156,7 +158,6 @@ class App {
 			}
 			// Battling
 			else if (neighbor_creature instanceof Zombie) { 
-				System.out.println("BATTLE");
 				// Enemy zombie
 				Zombie enemy_zombie = (Zombie)neighbor_creature;
 
@@ -192,7 +193,7 @@ class App {
 			}
 		}
 		// Update current day for current_human
-        current_human.update_current_day();
+ 
 	}
     // Initialization stage
 	public static void initialize() {
@@ -220,44 +221,42 @@ class App {
 		// Current day
 		int current_day = 0;
 		// Main loop
+	    
 	    while (current_day < running_days) {
 	        // Iterate and process any cell at (x,y)
-			for (int y = 0; y < world.world_height; y++) {
-				for (int x = 0; x < world.world_width; x++) {
-					// Cleaning terminal
-                    System.out.print("\033[H\033[2J");
-		            System.out.flush();
-                    
-					// Print world
-		            world.printWorld();
-
-					//Grab cell
-                    Creature current_cell = world.getCreature(x, y);
-
-					// Check if current_cell is either null or in different day
-                    if (current_cell == null || current_cell.get_current_day() != current_day) {
-					    try {TimeUnit.SECONDS.sleep(4);}
-		                catch (InterruptedException e) {e.printStackTrace();}
-						continue;
-					}
-					// Else process events 
-                    else {
-						if (current_cell instanceof Human)
-							handleHuman((Human)current_cell);
-						else if (current_cell instanceof Zombie)
-							handleZombie((Zombie)current_cell);
-					}
 			
-                    // Refresh rate
-					try {TimeUnit.MILLISECONDS.sleep(100);}
-		            catch (InterruptedException e) {e.printStackTrace();}
+			// Cleaning terminal
+            System.out.print("\033[H\033[2J");
+		    System.out.flush();
+                    
+			// Print world
+		    world.printWorld();
+            world.update_current_day();
+			for (int i = 0; i < world.humans.size(); i++) {
+		        Human current_human = world.humans.get(i);
+	    		if (current_human.get_current_day() != current_day)
+					continue;
+				else {
+			        handleHuman(current_human);
 				}
-				// Maybe spawn visitor at end of row
+				world.introduceVisitor();
+			}
+			for (int j = 0; j < world.zombies.size(); j++) {
+				Zombie current_zombie = world.zombies.get(j);
+                if (current_zombie.get_current_day() != current_day)
+					continue;
+				else {
+
+					handleZombie(current_zombie);
+					
+				}
 				world.introduceVisitor();
 			}
             // Update current day and in world
             current_day++;
-			world.update_current_day();
+		
+			try {TimeUnit.SECONDS.sleep(4);}
+		    catch (InterruptedException e) {e.printStackTrace();}
 	    }
 	}
 }

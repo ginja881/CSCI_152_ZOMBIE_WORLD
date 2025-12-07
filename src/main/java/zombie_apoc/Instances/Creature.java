@@ -44,7 +44,7 @@ public abstract class Creature {
 	// Current day getters and setters
 	public abstract int get_current_day();
 	public abstract void update_current_day();
-	public abstract void update_current_day(int day);
+
 
 	// Extra getter for super
 	public abstract boolean isSuper();

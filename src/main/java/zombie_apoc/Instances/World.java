@@ -37,11 +37,15 @@ public class World {
      private double visitor_rate;
      private double norm_constant;
      private double super_creature_spawn_rate;
-
+   
 	 // Immutable world height and width
      public final int world_width;
      public final int world_height; 
      
+	 // Immutable references to all humans and zombies
+	 public final ArrayList<Human> humans;
+	 public final ArrayList<Zombie> zombies;
+
 	 // Object of friend class used to make creatures
      private CreatureManager creature_factory = new CreatureManager();
      
@@ -145,14 +149,15 @@ public class World {
 	            if (zone[y][x] != null)
 				     return;		
 	            // Allocating new human object
-		        Human human = new Human(human_settings, x, y, isSuper);
+		        Human human = new Human(human_settings, x, y, isSuper, running_day);
 		        zone[y][x] = human;
 
 		        // Incrementing current creatures
                 current_creatures++;
-				int next_day = running_day + 1;
+			
 				// Updating current_days for the sake of it to prevent visitors from having extra turns 
-				human.update_current_day(next_day);
+
+				humans.add(human);
 		        
 	        }
 	        public void spawnZombie(int x, int y, boolean isSuper) {
@@ -161,14 +166,12 @@ public class World {
 				    return;		
 	            
 				// Allocating new zombie object
-		        Zombie zombie = new Zombie(x, y, zombie_settings, isSuper);
+		        Zombie zombie = new Zombie(x, y, zombie_settings, isSuper, running_day);
                 zone[y][x] = zombie;
 				// Incrementing current creatures
 		        current_creatures++;
 				// Updating current_days for the sake of it to prevent visitors from having extra turns
-				int next_day = running_day + 1;
-				zombie.update_current_day(next_day);
-		        
+		        zombies.add(zombie);
 	        }
 		 public <T extends Creature> void change_position(int new_x, int new_y, T creature) {
 			// Clearing out old cell
@@ -200,7 +203,7 @@ public class World {
 					System.out.print(cell);
 				}
 				else if (this.zone[y][x] == null)
-					System.out.print("| |");
+					System.out.print("|  |");
 		        if (x == (this.zone.length - 1))
 			        System.out.println();	  
 		    }
@@ -254,7 +257,7 @@ public class World {
 			 int running_day
      ) {
 		 // Running day
-         this.running_day = running_day;
+         this.running_day = 0;
 		 
 		 // Rates and important attributes for world
 	     this.human_spawn_rate = Double.parseDouble(world_info.get("human_spawn_rate"));
@@ -272,14 +275,16 @@ public class World {
          human_info.put("world_height", this.world_height);
 	     human_info.put("world_width", this.world_width);
          this.human_settings = human_info;
-         
-		 
+
 	     zombie_info.put("world_height", this.world_height);
 	     zombie_info.put("world_width", this.world_width);
          this.zombie_settings = zombie_info;
              
 	     this.random = new Random(); // Used for events like spawning visitors and initial creatures
          this.zone = new Creature[this.world_height][this.world_width];
+
+		 this.humans = new ArrayList<>();
+		 this.zombies = new ArrayList<>();
 
              
 	     generateWorld();

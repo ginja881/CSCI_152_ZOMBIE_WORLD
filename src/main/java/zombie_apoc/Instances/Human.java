@@ -74,16 +74,15 @@ public class Human extends Creature {
 
 	public int get_current_day() {return this.current_day;}
 	public void update_current_day() {this.current_day++;}
-	public void update_current_day(int day) {this.current_day = day;}
 	public boolean isSuper() {return this.isSuper;}
 	
 	// Constructor
-	public Human(Ini.Section human_info, int x, int y, boolean isSuper) {
+	public Human(Ini.Section human_info, int x, int y, boolean isSuper, int current_day) {
 		this.x = x;
 		this.y = y;
         this.isSuper = isSuper;
         this.rng = new Random();
-        this.current_day = 0;
+        this.current_day = current_day;
          
 		this.move_rate = Math.abs(Double.parseDouble(human_info.get("human_move_rate")));
 		this.reproduce_rate = Math.abs(Double.parseDouble(human_info.get("human_reproduce_rate")));
