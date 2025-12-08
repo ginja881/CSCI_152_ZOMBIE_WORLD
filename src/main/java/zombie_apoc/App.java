@@ -12,9 +12,6 @@ import zombie_apoc.Instances.World;
 import zombie_apoc.Instances.Zombie;
 import zombie_apoc.Instances.Creature;
 
-// TODO: Implement visualization layer
-
-
 // Helpers
 import java.util.ArrayList; // Useful data structure
 import java.util.HashMap;
