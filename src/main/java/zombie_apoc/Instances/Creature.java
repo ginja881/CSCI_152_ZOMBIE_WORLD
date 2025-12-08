@@ -1,9 +1,8 @@
 /*
- * Author Name: Joseph Carter
- * Submission Date: 11/12/2025
- * Description: creature class representation, for abstraction
- */
-
+ * Author Names: Joseph Carter, Bennett, Gabe, and Aaron Raycove
+ * Submission Date: 12/08/2025
+ * Description: abstract creature class for humans and zombies
+*/
 package zombie_apoc.Instances;
 import zombie_apoc.Instances.World;
 import java.util.ArrayList;

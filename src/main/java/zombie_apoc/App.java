@@ -1,3 +1,9 @@
+/*
+ * Author Names: Joseph Carter, Bennett, Gabe, and Aaron Raycove
+ * Submission Date: 12/08/2025
+ * Description: entry point
+ */
+
 package zombie_apoc;
 
 // Necessary custom instances defined in Instances directory

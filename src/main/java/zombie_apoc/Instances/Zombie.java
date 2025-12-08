@@ -1,9 +1,8 @@
 /*
- * Author Name: Joseph Carter
- * Submission Date: 11/12/2025
- * Description: zombie class representation, abstraction of two major entities. Refer to Creature.java.
- */
-
+ * Author Names: Joseph Carter, Bennett, Gabe, and Aaron Raycove
+ * Submission Date: 12/08/2025
+ * Description: representation of zombies
+*/
 
 package zombie_apoc.Instances;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 /*
- * Author Name: Joseph Carter
- * Submission Date: 11/12/2025
+ * Author Names: Joseph Carter, Bennett, Gabe, and Aaron Raycove
+ * Submission Date: 12/08/2025
  * Description: World class representation, for abstraction of probability and world management
  */
 

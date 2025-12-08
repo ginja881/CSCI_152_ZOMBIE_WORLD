@@ -1,9 +1,8 @@
 /*
- * Author Name: Joseph Carter
- * Submission Date: 11/12/2025
- * Description: human class representation, for abstraction of two main entities
+ * Author Names: Joseph Carter, Bennett, Gabe, and Aaron Raycove
+ * Submission Date: 12/08/2025
+ * Description: representation of human entities
  */
-
 
 package zombie_apoc.Instances;
 
