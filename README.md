@@ -1,6 +1,6 @@
 ## ABOUT
 
-This is a zombie projectmade by Joseph Carter, Aaron Raycone, Bennett, and Gabe. 
+This is a zombie project. 
 The project is supposed to be a simple "fight-fest" style simulation of a zombie apocalypse. 
 The events that can happen per supposed day are based off neighbor interaction between entities. 
 
